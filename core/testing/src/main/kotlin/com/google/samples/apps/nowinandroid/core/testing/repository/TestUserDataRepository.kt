@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.filterNotNull
 
 val emptyUserData = UserData(
     bookmarkedNewsResources = emptySet(),
+    bookmarkedExternalNewsResources = emptySet(),
     viewedNewsResources = emptySet(),
     followedTopics = emptySet(),
     themeBrand = ThemeBrand.DEFAULT,
@@ -70,6 +71,21 @@ class TestUserDataRepository : UserDataRepository {
             }
 
             _userData.tryEmit(current.copy(bookmarkedNewsResources = bookmarkedNews))
+        }
+    }
+
+    override suspend fun setExternalNewsResourceBookmarked(
+        externalNewsResourceLink: String,
+        bookmarked: Boolean,
+    ) {
+        currentUserData.let { current ->
+            val bookmarkedExternalNews = if (bookmarked) {
+                current.bookmarkedExternalNewsResources + externalNewsResourceLink
+            } else {
+                current.bookmarkedExternalNewsResources - externalNewsResourceLink
+            }
+
+            _userData.tryEmit(current.copy(bookmarkedExternalNewsResources = bookmarkedExternalNews))
         }
     }
 
