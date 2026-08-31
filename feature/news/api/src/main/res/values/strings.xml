@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feature_news_api_title">News</string>
+    <string name="feature_news_api_loading">Loading news…</string>
+    <string name="feature_news_api_empty_title">No news available</string>
+    <string name="feature_news_api_empty_description">Please try again later.</string>
+    <string name="feature_news_api_error_title">Error loading data</string>
+    <string name="feature_news_api_error_description">There was a problem loading the news. Please check your internet connection.</string>
+    <string name="feature_news_api_retry_button">Retry</string>
 </resources>
