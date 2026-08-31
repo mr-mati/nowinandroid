@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -79,6 +78,7 @@ import com.google.samples.apps.nowinandroid.feature.bookmarks.impl.navigation.bo
 import com.google.samples.apps.nowinandroid.feature.foryou.api.navigation.ForYouNavKey
 import com.google.samples.apps.nowinandroid.feature.foryou.impl.navigation.forYouEntry
 import com.google.samples.apps.nowinandroid.feature.interests.impl.navigation.interestsEntry
+import com.google.samples.apps.nowinandroid.feature.news.impl.navigation.newsEntry
 import com.google.samples.apps.nowinandroid.feature.search.api.navigation.SearchNavKey
 import com.google.samples.apps.nowinandroid.feature.search.impl.navigation.searchEntry
 import com.google.samples.apps.nowinandroid.feature.settings.impl.SettingsDialog
@@ -187,6 +187,8 @@ internal fun NiaApp(
             }
         },
         windowAdaptiveInfo = windowAdaptiveInfo,
+        modifier = Modifier
+            .fillMaxSize(),
     ) {
         Scaffold(
             modifier = modifier.semantics {
@@ -209,7 +211,6 @@ internal fun NiaApp(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .padding(padding)
                     .consumeWindowInsets(padding)
                     .windowInsetsPadding(
                         WindowInsets.safeDrawing.only(
@@ -223,8 +224,9 @@ internal fun NiaApp(
                 if (appState.navigationState.currentKey in appState.navigationState.topLevelKeys) {
                     shouldShowTopAppBar = true
 
-                    val destination = TOP_LEVEL_NAV_ITEMS[appState.navigationState.currentTopLevelKey]
-                        ?: error("Top level nav item not found for ${appState.navigationState.currentTopLevelKey}")
+                    val destination =
+                        TOP_LEVEL_NAV_ITEMS[appState.navigationState.currentTopLevelKey]
+                            ?: error("Top level nav item not found for ${appState.navigationState.currentTopLevelKey}")
 
                     NiaTopAppBar(
                         titleRes = destination.titleTextId,
@@ -262,6 +264,7 @@ internal fun NiaApp(
                         interestsEntry(navigator)
                         topicEntry(navigator)
                         searchEntry(navigator)
+                        newsEntry(navigator)
                     }
 
                     NavDisplay(

@@ -1,22 +1,6 @@
-/*
- * Copyright 2025 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.samples.apps.nowinandroid.core.ui
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,16 +18,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import com.google.samples.apps.nowinandroid.core.model.data.ExternalNewsResource
+import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaTopicTag
+import com.google.samples.apps.nowinandroid.core.model.data.UserExternalNewsResource
+import java.util.Locale
 
 @Composable
 fun ExternalNewsResourceCard(
-    item: ExternalNewsResource,
+    userExternalNewsResource: UserExternalNewsResource,
+    onToggleBookmark: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -56,53 +40,56 @@ fun ExternalNewsResourceCard(
             .padding(vertical = 8.dp),
     ) {
         Column {
-            if (!item.imageUrl.isNullOrEmpty()) {
-                AsyncImage(
-                    model = item.imageUrl,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp),
-                    contentScale = ContentScale.Crop,
-                )
+            if (!userExternalNewsResource.imageUrl.isNullOrEmpty()) {
+                NewsResourceHeaderImage(userExternalNewsResource.imageUrl)
             }
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    if (!item.sourceIconUrl.isNullOrEmpty()) {
-                        AsyncImage(
-                            model = item.sourceIconUrl,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(24.dp)
-                                .clip(RoundedCornerShape(4.dp)),
+            Box(
+                modifier = Modifier.padding(16.dp),
+            ) {
+                Column {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row {
+                        Text(
+                            text = userExternalNewsResource.title,
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.fillMaxWidth(.8f),
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        BookmarkButton(userExternalNewsResource.isBookmarked, onToggleBookmark)
+                    }
+                    Spacer(modifier = Modifier.height(14.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (!userExternalNewsResource.sourceIconUrl.isNullOrEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clip(RoundedCornerShape(4.dp)),
+                            ) {
+                                NewsResourceHeaderImage(
+                                    headerImageUrl = userExternalNewsResource.sourceIconUrl,
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        Text(
+                            text = userExternalNewsResource.source,
+                            style = MaterialTheme.typography.labelSmall,
                         )
                     }
-                    Text(
-                        text = item.source,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    if (!item.category.isNullOrEmpty()) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = item.category.uppercase(),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.secondary,
+                    Spacer(modifier = Modifier.height(14.dp))
+                    val category = userExternalNewsResource.category
+                    if (!category.isNullOrEmpty()) {
+                        NiaTopicTag(
+                            followed = true,
+                            onClick = { },
+                            text = {
+                                Text(
+                                    text = category.uppercase(Locale.getDefault()),
+                                )
+                            },
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = item.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
             }
         }
     }

@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.google.samples.apps.nowinandroid.core.analytics.LocalAnalyticsHelper
 import com.google.samples.apps.nowinandroid.core.designsystem.theme.NiaTheme
+import com.google.samples.apps.nowinandroid.core.model.data.UserExternalNewsResource
 import com.google.samples.apps.nowinandroid.core.model.data.UserNewsResource
 
 /**
@@ -47,6 +48,7 @@ import com.google.samples.apps.nowinandroid.core.model.data.UserNewsResource
 fun LazyStaggeredGridScope.newsFeed(
     feedState: NewsFeedUiState,
     onNewsResourcesCheckedChanged: (String, Boolean) -> Unit,
+    onExternalNewsResourcesCheckedChanged: (String, Boolean) -> Unit = { _, _ -> },
     onNewsResourceViewed: (String) -> Unit,
     onTopicClick: (String) -> Unit,
     onExpandedCardClick: () -> Unit = {},
@@ -84,8 +86,32 @@ fun LazyStaggeredGridScope.newsFeed(
                     },
                     onTopicClick = onTopicClick,
                     modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .animateItem(),
+                        .padding(horizontal = 8.dp),
+                )
+            }
+
+            items(
+                items = feedState.externalFeed,
+                key = { it.link },
+                contentType = { "externalNewsFeedItem" },
+            ) { userExternalNewsResource ->
+                val context = LocalContext.current
+                val backgroundColor = MaterialTheme.colorScheme.background.toArgb()
+
+                ExternalNewsResourceCard(
+                    userExternalNewsResource = userExternalNewsResource,
+                    onToggleBookmark = {
+                        onExternalNewsResourcesCheckedChanged(
+                            userExternalNewsResource.link,
+                            userExternalNewsResource.isBookmarked,
+                        )
+                    },
+                    onClick = {
+                        onExpandedCardClick()
+                        launchCustomChromeTab(context, Uri.parse(userExternalNewsResource.link), backgroundColor)
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp),
                 )
             }
         }
@@ -119,6 +145,11 @@ sealed interface NewsFeedUiState {
          * The list of news resources contained in this feed.
          */
         val feed: List<UserNewsResource>,
+
+        /**
+         * The list of external news resources contained in this feed.
+         */
+        val externalFeed: List<UserExternalNewsResource> = emptyList(),
     ) : NewsFeedUiState
 }
 
