@@ -21,8 +21,10 @@ import com.google.samples.apps.nowinandroid.core.data.repository.UserDataReposit
 import com.google.samples.apps.nowinandroid.core.model.data.FollowableTopic
 import com.google.samples.apps.nowinandroid.core.model.data.SearchResult
 import com.google.samples.apps.nowinandroid.core.model.data.UserData
+import com.google.samples.apps.nowinandroid.core.model.data.UserExternalNewsResource
 import com.google.samples.apps.nowinandroid.core.model.data.UserNewsResource
 import com.google.samples.apps.nowinandroid.core.model.data.UserSearchResult
+import com.google.samples.apps.nowinandroid.core.model.data.mapToUserExternalNewsResources
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
@@ -57,5 +59,6 @@ private fun Flow<SearchResult>.mapToUserSearchResult(userDataStream: Flow<UserDa
                     userData = userData,
                 )
             },
+            externalNewsResources = searchResult.externalNewsResources.mapToUserExternalNewsResources(userData),
         )
     }

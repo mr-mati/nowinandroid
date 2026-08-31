@@ -39,6 +39,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -86,8 +87,10 @@ import com.google.samples.apps.nowinandroid.core.designsystem.component.scrollba
 import com.google.samples.apps.nowinandroid.core.designsystem.icon.NiaIcons
 import com.google.samples.apps.nowinandroid.core.designsystem.theme.NiaTheme
 import com.google.samples.apps.nowinandroid.core.model.data.FollowableTopic
+import com.google.samples.apps.nowinandroid.core.model.data.UserExternalNewsResource
 import com.google.samples.apps.nowinandroid.core.model.data.UserNewsResource
 import com.google.samples.apps.nowinandroid.core.ui.DevicePreviews
+import com.google.samples.apps.nowinandroid.core.ui.ExternalNewsResourceCard
 import com.google.samples.apps.nowinandroid.core.ui.InterestsItem
 import com.google.samples.apps.nowinandroid.core.ui.NewsFeedUiState.Success
 import com.google.samples.apps.nowinandroid.core.ui.R.string
@@ -115,6 +118,7 @@ internal fun SearchScreen(
         onSearchTriggered = searchViewModel::onSearchTriggered,
         onClearRecentSearches = searchViewModel::clearRecentSearches,
         onNewsResourcesCheckedChanged = searchViewModel::setNewsResourceBookmarked,
+        onExternalNewsResourcesCheckedChanged = searchViewModel::setExternalNewsResourceBookmarked,
         onNewsResourceViewed = { searchViewModel.setNewsResourceViewed(it, true) },
         onFollowButtonClick = searchViewModel::followTopic,
         onBackClick = onBackClick,
@@ -133,6 +137,7 @@ internal fun SearchScreen(
     onSearchTriggered: (String) -> Unit = {},
     onClearRecentSearches: () -> Unit = {},
     onNewsResourcesCheckedChanged: (String, Boolean) -> Unit = { _, _ -> },
+    onExternalNewsResourcesCheckedChanged: (String, Boolean) -> Unit = { _, _ -> },
     onNewsResourceViewed: (String) -> Unit = {},
     onFollowButtonClick: (String, Boolean) -> Unit = { _, _ -> },
     onBackClick: () -> Unit = {},
@@ -189,9 +194,11 @@ internal fun SearchScreen(
                         searchQuery = searchQuery,
                         topics = searchResultUiState.topics,
                         newsResources = searchResultUiState.newsResources,
+                        externalNewsResources = searchResultUiState.externalNewsResources,
                         onSearchTriggered = onSearchTriggered,
                         onTopicClick = onTopicClick,
                         onNewsResourcesCheckedChanged = onNewsResourcesCheckedChanged,
+                        onExternalNewsResourcesCheckedChanged = onExternalNewsResourcesCheckedChanged,
                         onNewsResourceViewed = onNewsResourceViewed,
                         onFollowButtonClick = onFollowButtonClick,
                     )
@@ -286,9 +293,11 @@ private fun SearchResultBody(
     searchQuery: String,
     topics: List<FollowableTopic>,
     newsResources: List<UserNewsResource>,
+    externalNewsResources: List<UserExternalNewsResource>,
     onSearchTriggered: (String) -> Unit,
     onTopicClick: (String) -> Unit,
     onNewsResourcesCheckedChanged: (String, Boolean) -> Unit,
+    onExternalNewsResourcesCheckedChanged: (String, Boolean) -> Unit,
     onNewsResourceViewed: (String) -> Unit,
     onFollowButtonClick: (String, Boolean) -> Unit,
 ) {
@@ -367,8 +376,31 @@ private fun SearchResultBody(
                     },
                 )
             }
+
+            if (externalNewsResources.isNotEmpty()) {
+                item(
+                    span = StaggeredGridItemSpan.FullLine,
+                ) {
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(stringResource(id = searchR.string.feature_search_api_external_news))
+                            }
+                        },
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    )
+                }
+
+                items(externalNewsResources, key = { it.link }) { item ->
+                    ExternalNewsResourceCard(
+                        userExternalNewsResource = item,
+                        onToggleBookmark = { onExternalNewsResourcesCheckedChanged(item.link, item.isBookmarked) },
+                        onClick = { onSearchTriggered(searchQuery) },
+                    )
+                }
+            }
         }
-        val itemsAvailable = topics.size + newsResources.size
+        val itemsAvailable = topics.size + newsResources.size + externalNewsResources.size
         val scrollbarState = state.scrollbarState(
             itemsAvailable = itemsAvailable,
         )

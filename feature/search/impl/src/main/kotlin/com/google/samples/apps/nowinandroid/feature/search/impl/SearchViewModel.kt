@@ -69,6 +69,7 @@ class SearchViewModel @Inject constructor(
                                     SearchResultUiState.Success(
                                         topics = data.topics,
                                         newsResources = data.newsResources,
+                                        externalNewsResources = data.externalNewsResources,
                                     )
                                 }
                                 .catch { emit(SearchResultUiState.LoadFailed) }
@@ -118,6 +119,12 @@ class SearchViewModel @Inject constructor(
     fun setNewsResourceBookmarked(newsResourceId: String, isChecked: Boolean) {
         viewModelScope.launch {
             userDataRepository.setNewsResourceBookmarked(newsResourceId, isChecked)
+        }
+    }
+
+    fun setExternalNewsResourceBookmarked(link: String, isBookmarked: Boolean) {
+        viewModelScope.launch {
+            userDataRepository.setExternalNewsResourceBookmarked(link, !isBookmarked)
         }
     }
 

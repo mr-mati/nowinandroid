@@ -17,6 +17,7 @@
 package com.google.samples.apps.nowinandroid.feature.search.impl
 
 import com.google.samples.apps.nowinandroid.core.model.data.FollowableTopic
+import com.google.samples.apps.nowinandroid.core.model.data.UserExternalNewsResource
 import com.google.samples.apps.nowinandroid.core.model.data.UserNewsResource
 
 sealed interface SearchResultUiState {
@@ -34,8 +35,10 @@ sealed interface SearchResultUiState {
     data class Success(
         val topics: List<FollowableTopic> = emptyList(),
         val newsResources: List<UserNewsResource> = emptyList(),
+        val externalNewsResources: List<UserExternalNewsResource> = emptyList(),
     ) : SearchResultUiState {
-        fun isEmpty(): Boolean = topics.isEmpty() && newsResources.isEmpty()
+        fun isEmpty(): Boolean =
+            topics.isEmpty() && newsResources.isEmpty() && externalNewsResources.isEmpty()
     }
 
     /**

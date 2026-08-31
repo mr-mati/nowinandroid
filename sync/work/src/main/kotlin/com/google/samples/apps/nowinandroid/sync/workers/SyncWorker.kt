@@ -28,6 +28,7 @@ import com.google.samples.apps.nowinandroid.core.analytics.AnalyticsHelper
 import com.google.samples.apps.nowinandroid.core.common.network.Dispatcher
 import com.google.samples.apps.nowinandroid.core.common.network.NiaDispatchers.IO
 import com.google.samples.apps.nowinandroid.core.data.Synchronizer
+import com.google.samples.apps.nowinandroid.core.data.repository.ExternalNewsRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.NewsRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.SearchContentsRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.TopicsRepository
@@ -54,6 +55,7 @@ internal class SyncWorker @AssistedInject constructor(
     private val niaPreferences: NiaPreferencesDataSource,
     private val topicRepository: TopicsRepository,
     private val newsRepository: NewsRepository,
+    private val externalNewsRepository: ExternalNewsRepository,
     private val searchContentsRepository: SearchContentsRepository,
     @Dispatcher(IO) private val ioDispatcher: CoroutineDispatcher,
     private val analyticsHelper: AnalyticsHelper,
@@ -73,6 +75,7 @@ internal class SyncWorker @AssistedInject constructor(
             val syncedSuccessfully = awaitAll(
                 async { topicRepository.sync() },
                 async { newsRepository.sync() },
+                async { externalNewsRepository.refreshNews().isSuccess },
             ).all { it }
 
             analyticsHelper.logSyncFinished(syncedSuccessfully)

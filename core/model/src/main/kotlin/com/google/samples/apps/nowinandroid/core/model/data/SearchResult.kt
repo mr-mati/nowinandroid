@@ -20,4 +20,5 @@ package com.google.samples.apps.nowinandroid.core.model.data
 data class SearchResult(
     val topics: List<Topic> = emptyList(),
     val newsResources: List<NewsResource> = emptyList(),
+    val externalNewsResources: List<ExternalNewsResource> = emptyList(),
 )

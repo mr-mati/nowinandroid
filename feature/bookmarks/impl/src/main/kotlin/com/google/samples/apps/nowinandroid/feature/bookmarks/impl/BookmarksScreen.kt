@@ -89,6 +89,7 @@ internal fun BookmarksScreen(
         onShowSnackbar = onShowSnackbar,
         removeFromBookmarks = viewModel::removeFromSavedResources,
         onNewsResourceViewed = { viewModel.setNewsResourceViewed(it, true) },
+        onExternalNewsResourcesCheckedChanged = { id, _ -> viewModel.removeExternalFromSavedResources(id) },
         onTopicClick = onTopicClick,
         modifier = modifier,
         shouldDisplayUndoBookmark = viewModel.shouldDisplayUndoBookmark,
@@ -106,6 +107,7 @@ internal fun BookmarksScreen(
     feedState: NewsFeedUiState,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     removeFromBookmarks: (String) -> Unit,
+    onExternalNewsResourcesCheckedChanged: (String, Boolean) -> Unit,
     onNewsResourceViewed: (String) -> Unit,
     onTopicClick: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -133,10 +135,11 @@ internal fun BookmarksScreen(
 
     when (feedState) {
         Loading -> LoadingState(modifier)
-        is Success -> if (feedState.feed.isNotEmpty()) {
+        is Success -> if (feedState.feed.isNotEmpty() || feedState.externalFeed.isNotEmpty()) {
             BookmarksGrid(
                 feedState,
                 removeFromBookmarks,
+                onExternalNewsResourcesCheckedChanged,
                 onNewsResourceViewed,
                 onTopicClick,
                 modifier,
@@ -164,6 +167,7 @@ private fun LoadingState(modifier: Modifier = Modifier) {
 private fun BookmarksGrid(
     feedState: NewsFeedUiState,
     removeFromBookmarks: (String) -> Unit,
+    onExternalNewsResourcesCheckedChanged: (String, Boolean) -> Unit,
     onNewsResourceViewed: (String) -> Unit,
     onTopicClick: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -187,6 +191,7 @@ private fun BookmarksGrid(
             newsFeed(
                 feedState = feedState,
                 onNewsResourcesCheckedChanged = { id, _ -> removeFromBookmarks(id) },
+                onExternalNewsResourcesCheckedChanged = onExternalNewsResourcesCheckedChanged,
                 onNewsResourceViewed = onNewsResourceViewed,
                 onTopicClick = onTopicClick,
             )
@@ -273,6 +278,7 @@ private fun BookmarksGridPreview(
         BookmarksGrid(
             feedState = Success(userNewsResources),
             removeFromBookmarks = {},
+            onExternalNewsResourcesCheckedChanged = { _, _ -> },
             onNewsResourceViewed = {},
             onTopicClick = {},
         )

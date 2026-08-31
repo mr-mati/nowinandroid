@@ -21,14 +21,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.samples.apps.nowinandroid.core.data.repository.ExternalNewsRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.UserDataRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.UserNewsResourceRepository
+import com.google.samples.apps.nowinandroid.core.model.data.UserExternalNewsResource
 import com.google.samples.apps.nowinandroid.core.model.data.UserNewsResource
 import com.google.samples.apps.nowinandroid.core.ui.NewsFeedUiState
 import com.google.samples.apps.nowinandroid.core.ui.NewsFeedUiState.Loading
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -39,14 +42,21 @@ import javax.inject.Inject
 class BookmarksViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
     userNewsResourceRepository: UserNewsResourceRepository,
+    externalNewsRepository: ExternalNewsRepository,
 ) : ViewModel() {
 
     var shouldDisplayUndoBookmark by mutableStateOf(false)
     private var lastRemovedBookmarkId: String? = null
+    private var isExternalBookmark: Boolean = false
 
     val feedUiState: StateFlow<NewsFeedUiState> =
-        userNewsResourceRepository.observeAllBookmarked()
-            .map<List<UserNewsResource>, NewsFeedUiState>(NewsFeedUiState::Success)
+        combine(
+            userNewsResourceRepository.observeAllBookmarked(),
+            externalNewsRepository.observeAllBookmarked(),
+            ::Pair,
+        ).map<Pair<List<UserNewsResource>, List<UserExternalNewsResource>>, NewsFeedUiState> { (news, externalNews) ->
+            NewsFeedUiState.Success(news, externalNews)
+        }
             .onStart { emit(Loading) }
             .stateIn(
                 scope = viewModelScope,
@@ -58,7 +68,17 @@ class BookmarksViewModel @Inject constructor(
         viewModelScope.launch {
             shouldDisplayUndoBookmark = true
             lastRemovedBookmarkId = newsResourceId
+            isExternalBookmark = false
             userDataRepository.setNewsResourceBookmarked(newsResourceId, false)
+        }
+    }
+
+    fun removeExternalFromSavedResources(link: String) {
+        viewModelScope.launch {
+            shouldDisplayUndoBookmark = true
+            lastRemovedBookmarkId = link
+            isExternalBookmark = true
+            userDataRepository.setExternalNewsResourceBookmarked(link, false)
         }
     }
 
@@ -70,8 +90,12 @@ class BookmarksViewModel @Inject constructor(
 
     fun undoBookmarkRemoval() {
         viewModelScope.launch {
-            lastRemovedBookmarkId?.let {
-                userDataRepository.setNewsResourceBookmarked(it, true)
+            lastRemovedBookmarkId?.let { id ->
+                if (isExternalBookmark) {
+                    userDataRepository.setExternalNewsResourceBookmarked(id, true)
+                } else {
+                    userDataRepository.setNewsResourceBookmarked(id, true)
+                }
             }
         }
         clearUndoState()
