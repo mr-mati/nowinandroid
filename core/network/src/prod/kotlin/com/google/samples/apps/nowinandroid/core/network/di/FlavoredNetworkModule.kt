@@ -16,7 +16,9 @@
 
 package com.google.samples.apps.nowinandroid.core.network.di
 
+import com.google.samples.apps.nowinandroid.core.network.ExternalNewsNetworkDataSource
 import com.google.samples.apps.nowinandroid.core.network.NiaNetworkDataSource
+import com.google.samples.apps.nowinandroid.core.network.retrofit.RetrofitExternalNewsNetwork
 import com.google.samples.apps.nowinandroid.core.network.retrofit.RetrofitNiaNetwork
 import dagger.Binds
 import dagger.Module
@@ -29,4 +31,7 @@ internal interface FlavoredNetworkModule {
 
     @Binds
     fun binds(impl: RetrofitNiaNetwork): NiaNetworkDataSource
+
+    @Binds
+    fun bindsExternalNews(impl: RetrofitExternalNewsNetwork): ExternalNewsNetworkDataSource
 }
