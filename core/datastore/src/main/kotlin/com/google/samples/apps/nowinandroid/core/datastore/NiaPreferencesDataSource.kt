@@ -33,6 +33,7 @@ class NiaPreferencesDataSource @Inject constructor(
         .map {
             UserData(
                 bookmarkedNewsResources = it.bookmarkedNewsResourceIdsMap.keys,
+                bookmarkedExternalNewsResources = it.bookmarkedExternalNewsResourceLinksMap.keys,
                 viewedNewsResources = it.viewedNewsResourceIdsMap.keys,
                 followedTopics = it.followedTopicIdsMap.keys,
                 themeBrand = when (it.themeBrand) {
@@ -128,6 +129,22 @@ class NiaPreferencesDataSource @Inject constructor(
                         bookmarkedNewsResourceIds.put(newsResourceId, true)
                     } else {
                         bookmarkedNewsResourceIds.remove(newsResourceId)
+                    }
+                }
+            }
+        } catch (ioException: IOException) {
+            Log.e("NiaPreferences", "Failed to update user preferences", ioException)
+        }
+    }
+
+    suspend fun setExternalNewsResourceBookmarked(externalNewsResourceLink: String, bookmarked: Boolean) {
+        try {
+            userPreferences.updateData {
+                it.copy {
+                    if (bookmarked) {
+                        bookmarkedExternalNewsResourceLinks.put(externalNewsResourceLink, true)
+                    } else {
+                        bookmarkedExternalNewsResourceLinks.remove(externalNewsResourceLink)
                     }
                 }
             }

@@ -18,6 +18,8 @@ package com.google.samples.apps.nowinandroid.core.data.repository
 
 import com.google.samples.apps.nowinandroid.core.common.network.Dispatcher
 import com.google.samples.apps.nowinandroid.core.common.network.NiaDispatchers.IO
+import com.google.samples.apps.nowinandroid.core.database.dao.ExternalNewsResourceDao
+import com.google.samples.apps.nowinandroid.core.database.dao.ExternalNewsResourceFtsDao
 import com.google.samples.apps.nowinandroid.core.database.dao.NewsResourceDao
 import com.google.samples.apps.nowinandroid.core.database.dao.NewsResourceFtsDao
 import com.google.samples.apps.nowinandroid.core.database.dao.TopicDao
@@ -41,6 +43,8 @@ internal class DefaultSearchContentsRepository @Inject constructor(
     private val newsResourceFtsDao: NewsResourceFtsDao,
     private val topicDao: TopicDao,
     private val topicFtsDao: TopicFtsDao,
+    private val externalNewsResourceDao: ExternalNewsResourceDao,
+    private val externalNewsResourceFtsDao: ExternalNewsResourceFtsDao,
     @Dispatcher(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : SearchContentsRepository {
 
@@ -55,6 +59,11 @@ internal class DefaultSearchContentsRepository @Inject constructor(
                     .map(PopulatedNewsResource::asFtsEntity),
             )
             topicFtsDao.insertAll(topicDao.getOneOffTopicEntities().map { it.asFtsEntity() })
+            externalNewsResourceFtsDao.insertAll(
+                externalNewsResourceDao.getExternalNewsResources()
+                    .first()
+                    .map { it.asFtsEntity() },
+            )
         }
     }
 
@@ -63,6 +72,8 @@ internal class DefaultSearchContentsRepository @Inject constructor(
         // a word
         val newsResourceIds = newsResourceFtsDao.searchAllNewsResources("*$searchQuery*")
         val topicIds = topicFtsDao.searchAllTopics("*$searchQuery*")
+        val externalNewsResourceIds =
+            externalNewsResourceFtsDao.searchAllExternalNewsResources("*$searchQuery*")
 
         val newsResourcesFlow = newsResourceIds
             .mapLatest { it.toSet() }
@@ -74,10 +85,23 @@ internal class DefaultSearchContentsRepository @Inject constructor(
             .mapLatest { it.toSet() }
             .distinctUntilChanged()
             .flatMapLatest(topicDao::getTopicEntities)
-        return combine(newsResourcesFlow, topicsFlow) { newsResources, topics ->
+
+        val externalNewsResourcesFlow = externalNewsResourceIds
+            .mapLatest { it.toSet() }
+            .distinctUntilChanged()
+            .flatMapLatest {
+                externalNewsResourceDao.getExternalNewsResources(it)
+            }
+
+        return combine(
+            newsResourcesFlow,
+            topicsFlow,
+            externalNewsResourcesFlow,
+        ) { newsResources, topics, externalNewsResources ->
             SearchResult(
                 topics = topics.map { it.asExternalModel() },
                 newsResources = newsResources.map { it.asExternalModel() },
+                externalNewsResources = externalNewsResources.map { it.asExternalModel() },
             )
         }
     }
@@ -86,7 +110,8 @@ internal class DefaultSearchContentsRepository @Inject constructor(
         combine(
             newsResourceFtsDao.getCount(),
             topicFtsDao.getCount(),
-        ) { newsResourceCount, topicsCount ->
-            newsResourceCount + topicsCount
+            externalNewsResourceFtsDao.getCount(),
+        ) { newsResourceCount, topicsCount, externalNewsCount ->
+            newsResourceCount + topicsCount + externalNewsCount
         }
 }

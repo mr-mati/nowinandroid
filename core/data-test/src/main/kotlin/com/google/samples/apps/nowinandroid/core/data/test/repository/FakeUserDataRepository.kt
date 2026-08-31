@@ -47,6 +47,13 @@ class FakeUserDataRepository @Inject constructor(
         niaPreferencesDataSource.setNewsResourceBookmarked(newsResourceId, bookmarked)
     }
 
+    override suspend fun setExternalNewsResourceBookmarked(
+        externalNewsResourceLink: String,
+        bookmarked: Boolean,
+    ) {
+        niaPreferencesDataSource.setExternalNewsResourceBookmarked(externalNewsResourceLink, bookmarked)
+    }
+
     override suspend fun setNewsResourceViewed(newsResourceId: String, viewed: Boolean) =
         niaPreferencesDataSource.setNewsResourceViewed(newsResourceId, viewed)
 

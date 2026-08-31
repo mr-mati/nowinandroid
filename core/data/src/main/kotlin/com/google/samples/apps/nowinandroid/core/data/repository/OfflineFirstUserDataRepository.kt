@@ -50,6 +50,11 @@ internal class OfflineFirstUserDataRepository @Inject constructor(
         )
     }
 
+    override suspend fun setExternalNewsResourceBookmarked(externalNewsResourceLink: String, bookmarked: Boolean) {
+        niaPreferencesDataSource.setExternalNewsResourceBookmarked(externalNewsResourceLink, bookmarked)
+        // You could add analytics for external news too if desired
+    }
+
     override suspend fun setNewsResourceViewed(newsResourceId: String, viewed: Boolean) =
         niaPreferencesDataSource.setNewsResourceViewed(newsResourceId, viewed)
 
