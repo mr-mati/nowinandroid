@@ -25,12 +25,15 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.windowInsetsTopHeight
@@ -62,6 +65,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -145,6 +149,11 @@ internal fun SearchScreen(
     onTopicClick: (String) -> Unit = {},
 ) {
     TrackScreenViewEvent(screenName = "Search")
+    val density = LocalDensity.current
+    val imeBottomDp = with(density) { WindowInsets.ime.getBottom(this).toDp() }
+    val isImeVisible = imeBottomDp > 0.dp
+    val navBarHeightDp = 80.dp
+
     Column(modifier = modifier) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
         SearchToolbar(
@@ -153,32 +162,19 @@ internal fun SearchScreen(
             onSearchTriggered = onSearchTriggered,
             searchQuery = searchQuery,
         )
-        when (searchResultUiState) {
-            SearchResultUiState.Loading,
-            SearchResultUiState.LoadFailed,
-            -> Unit
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+        ) {
+            when (searchResultUiState) {
+                SearchResultUiState.Loading,
+                SearchResultUiState.LoadFailed,
+                -> Unit
 
-            SearchResultUiState.SearchNotReady -> SearchNotReadyBody()
-            SearchResultUiState.EmptyQuery,
-            -> {
-                if (recentSearchesUiState is RecentSearchQueriesUiState.Success) {
-                    RecentSearchesBody(
-                        onClearRecentSearches = onClearRecentSearches,
-                        onRecentSearchClicked = {
-                            onSearchQueryChanged(it)
-                            onSearchTriggered(it)
-                        },
-                        recentSearchQueries = recentSearchesUiState.recentQueries.map { it.query },
-                    )
-                }
-            }
-
-            is SearchResultUiState.Success -> {
-                if (searchResultUiState.isEmpty()) {
-                    EmptySearchResultBody(
-                        searchQuery = searchQuery,
-                        onInterestsClick = onInterestsClick,
-                    )
+                SearchResultUiState.SearchNotReady -> SearchNotReadyBody()
+                SearchResultUiState.EmptyQuery,
+                -> {
                     if (recentSearchesUiState is RecentSearchQueriesUiState.Success) {
                         RecentSearchesBody(
                             onClearRecentSearches = onClearRecentSearches,
@@ -187,25 +183,53 @@ internal fun SearchScreen(
                                 onSearchTriggered(it)
                             },
                             recentSearchQueries = recentSearchesUiState.recentQueries.map { it.query },
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
-                } else {
-                    SearchResultBody(
-                        searchQuery = searchQuery,
-                        topics = searchResultUiState.topics,
-                        newsResources = searchResultUiState.newsResources,
-                        externalNewsResources = searchResultUiState.externalNewsResources,
-                        onSearchTriggered = onSearchTriggered,
-                        onTopicClick = onTopicClick,
-                        onNewsResourcesCheckedChanged = onNewsResourcesCheckedChanged,
-                        onExternalNewsResourcesCheckedChanged = onExternalNewsResourcesCheckedChanged,
-                        onNewsResourceViewed = onNewsResourceViewed,
-                        onFollowButtonClick = onFollowButtonClick,
-                    )
+                }
+
+                is SearchResultUiState.Success -> {
+                    if (searchResultUiState.isEmpty()) {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            EmptySearchResultBody(
+                                searchQuery = searchQuery,
+                                onInterestsClick = onInterestsClick,
+                            )
+                            if (recentSearchesUiState is RecentSearchQueriesUiState.Success) {
+                                RecentSearchesBody(
+                                    onClearRecentSearches = onClearRecentSearches,
+                                    onRecentSearchClicked = {
+                                        onSearchQueryChanged(it)
+                                        onSearchTriggered(it)
+                                    },
+                                    recentSearchQueries = recentSearchesUiState.recentQueries.map { it.query },
+                                    modifier = Modifier.weight(1f, fill = false),
+                                )
+                            }
+                        }
+                    } else {
+                        SearchResultBody(
+                            searchQuery = searchQuery,
+                            topics = searchResultUiState.topics,
+                            newsResources = searchResultUiState.newsResources,
+                            externalNewsResources = searchResultUiState.externalNewsResources,
+                            onSearchTriggered = onSearchTriggered,
+                            onTopicClick = onTopicClick,
+                            onNewsResourcesCheckedChanged = onNewsResourcesCheckedChanged,
+                            onExternalNewsResourcesCheckedChanged = onExternalNewsResourcesCheckedChanged,
+                            onNewsResourceViewed = onNewsResourceViewed,
+                            onFollowButtonClick = onFollowButtonClick,
+                        )
+                    }
                 }
             }
         }
-        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
+        if (isImeVisible) {
+            val keyboardOverlapDp = maxOf(0.dp, imeBottomDp - navBarHeightDp) + 8.dp
+            Spacer(Modifier.height(keyboardOverlapDp))
+        } else {
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
+        }
     }
 }
 
@@ -407,7 +431,7 @@ private fun SearchResultBody(
         state.DraggableScrollbar(
             modifier = Modifier
                 .fillMaxHeight()
-                .windowInsetsPadding(WindowInsets.systemBars)
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
                 .padding(horizontal = 2.dp)
                 .align(Alignment.CenterEnd),
             state = scrollbarState,
@@ -424,8 +448,9 @@ private fun RecentSearchesBody(
     recentSearchQueries: List<String>,
     onClearRecentSearches: () -> Unit,
     onRecentSearchClicked: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Column {
+    Column(modifier = modifier.fillMaxWidth()) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
@@ -456,7 +481,12 @@ private fun RecentSearchesBody(
                 }
             }
         }
-        LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f, fill = false)
+                .padding(horizontal = 16.dp),
+        ) {
             items(recentSearchQueries) { recentSearch ->
                 Text(
                     text = recentSearch,

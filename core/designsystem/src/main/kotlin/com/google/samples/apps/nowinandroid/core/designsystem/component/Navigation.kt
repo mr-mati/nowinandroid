@@ -16,25 +16,38 @@
 
 package com.google.samples.apps.nowinandroid.core.designsystem.component
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.only
+import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailDefaults
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuite
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItemColors
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScope
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -214,22 +227,54 @@ fun NiaNavigationSuiteScaffold(
         ),
     )
 
-    NavigationSuiteScaffold(
-        navigationSuiteItems = {
-            NiaNavigationSuiteScope(
-                navigationSuiteScope = this,
-                navigationSuiteItemColors = navigationSuiteItemColors,
-            ).run(navigationSuiteItems)
-        },
-        layoutType = layoutType,
-        containerColor = Color.Transparent,
-        navigationSuiteColors = NavigationSuiteDefaults.colors(
-            navigationBarContentColor = NiaNavigationDefaults.navigationContentColor(),
-            navigationRailContainerColor = Color.Transparent,
-        ),
+    Surface(
         modifier = modifier,
+        color = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onBackground,
     ) {
-        content()
+        NavigationSuiteScaffoldLayout(
+            navigationSuite = {
+                Box(
+                    Modifier
+                        .consumeWindowInsets(WindowInsets.ime)
+                        .consumeWindowInsets(
+                            NavigationBarDefaults.windowInsets.only(WindowInsetsSides.Bottom),
+                        ),
+                ) {
+                    NavigationSuite(
+                        layoutType = layoutType,
+                        colors = NavigationSuiteDefaults.colors(
+                            navigationBarContentColor = NiaNavigationDefaults.navigationContentColor(),
+                            navigationRailContainerColor = Color.Transparent,
+                        ),
+                        content = {
+                            NiaNavigationSuiteScope(
+                                navigationSuiteScope = this,
+                                navigationSuiteItemColors = navigationSuiteItemColors,
+                            ).run(navigationSuiteItems)
+                        },
+                    )
+                }
+            },
+            layoutType = layoutType,
+            content = {
+                Box(
+                    Modifier.consumeWindowInsets(
+                        when (layoutType) {
+                            NavigationSuiteType.NavigationBar ->
+                                NavigationBarDefaults.windowInsets.only(WindowInsetsSides.Bottom)
+                            NavigationSuiteType.NavigationRail ->
+                                NavigationRailDefaults.windowInsets.only(WindowInsetsSides.Start)
+                            NavigationSuiteType.NavigationDrawer ->
+                                DrawerDefaults.windowInsets.only(WindowInsetsSides.Start)
+                            else -> WindowInsets(0, 0, 0, 0)
+                        },
+                    ),
+                ) {
+                    content()
+                }
+            },
+        )
     }
 }
 
