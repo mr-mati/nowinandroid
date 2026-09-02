@@ -151,12 +151,6 @@ internal fun SearchScreen(
     onTopicClick: (String) -> Unit = {},
     onNewsClick: (String) -> Unit = {},
 ) {
-    TrackScreenViewEvent(screenName = "Search")
-    val density = LocalDensity.current
-    val imeBottomDp = with(density) { WindowInsets.ime.getBottom(this).toDp() }
-    val isImeVisible = imeBottomDp > 0.dp
-    val navBarHeightDp = 80.dp
-
     Column(modifier = modifier) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
         SearchToolbar(
@@ -228,12 +222,7 @@ internal fun SearchScreen(
                 }
             }
         }
-        if (isImeVisible) {
-            val keyboardOverlapDp = maxOf(0.dp, imeBottomDp - navBarHeightDp) + 8.dp
-            Spacer(Modifier.height(keyboardOverlapDp))
-        } else {
-            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
-        }
+        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
     }
 }
 
