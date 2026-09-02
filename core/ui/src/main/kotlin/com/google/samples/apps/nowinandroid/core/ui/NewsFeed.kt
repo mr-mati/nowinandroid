@@ -51,7 +51,7 @@ fun LazyStaggeredGridScope.newsFeed(
     onExternalNewsResourcesCheckedChanged: (String, Boolean) -> Unit = { _, _ -> },
     onNewsResourceViewed: (String) -> Unit,
     onTopicClick: (String) -> Unit,
-    onExpandedCardClick: () -> Unit = {},
+    onNewsClick: (String) -> Unit,
 ) {
     when (feedState) {
         NewsFeedUiState.Loading -> Unit
@@ -61,20 +61,16 @@ fun LazyStaggeredGridScope.newsFeed(
                 key = { it.id },
                 contentType = { "newsFeedItem" },
             ) { userNewsResource ->
-                val context = LocalContext.current
                 val analyticsHelper = LocalAnalyticsHelper.current
-                val backgroundColor = MaterialTheme.colorScheme.background.toArgb()
 
                 NewsResourceCardExpanded(
                     userNewsResource = userNewsResource,
                     isBookmarked = userNewsResource.isSaved,
                     onClick = {
-                        onExpandedCardClick()
                         analyticsHelper.logNewsResourceOpened(
                             newsResourceId = userNewsResource.id,
                         )
-                        launchCustomChromeTab(context, Uri.parse(userNewsResource.url), backgroundColor)
-
+                        onNewsClick(userNewsResource.id)
                         onNewsResourceViewed(userNewsResource.id)
                     },
                     hasBeenViewed = userNewsResource.hasBeenViewed,
@@ -95,9 +91,6 @@ fun LazyStaggeredGridScope.newsFeed(
                 key = { it.link },
                 contentType = { "externalNewsFeedItem" },
             ) { userExternalNewsResource ->
-                val context = LocalContext.current
-                val backgroundColor = MaterialTheme.colorScheme.background.toArgb()
-
                 ExternalNewsResourceCard(
                     userExternalNewsResource = userExternalNewsResource,
                     onToggleBookmark = {
@@ -107,8 +100,7 @@ fun LazyStaggeredGridScope.newsFeed(
                         )
                     },
                     onClick = {
-                        onExpandedCardClick()
-                        launchCustomChromeTab(context, Uri.parse(userExternalNewsResource.link), backgroundColor)
+                        onNewsClick(userExternalNewsResource.link)
                     },
                     modifier = Modifier
                         .padding(horizontal = 8.dp),
@@ -163,6 +155,7 @@ private fun NewsFeedLoadingPreview() {
                 onNewsResourcesCheckedChanged = { _, _ -> },
                 onNewsResourceViewed = {},
                 onTopicClick = {},
+                onNewsClick = {},
             )
         }
     }
@@ -182,6 +175,7 @@ private fun NewsFeedContentPreview(
                 onNewsResourcesCheckedChanged = { _, _ -> },
                 onNewsResourceViewed = {},
                 onTopicClick = {},
+                onNewsClick = {},
             )
         }
     }

@@ -27,11 +27,14 @@ import com.google.samples.apps.nowinandroid.feature.bookmarks.api.navigation.Boo
 import com.google.samples.apps.nowinandroid.feature.bookmarks.impl.BookmarksScreen
 import com.google.samples.apps.nowinandroid.feature.topic.api.navigation.navigateToTopic
 
+import com.google.samples.apps.nowinandroid.feature.news.api.navigation.navigateToNewsDetail
+
 fun EntryProviderScope<NavKey>.bookmarksEntry(navigator: Navigator) {
     entry<BookmarksNavKey> {
         val snackbarHostState = LocalSnackbarHostState.current
         BookmarksScreen(
             onTopicClick = navigator::navigateToTopic,
+            onNewsClick = navigator::navigateToNewsDetail,
             onShowSnackbar = { message, action ->
                 snackbarHostState.showSnackbar(
                     message = message,

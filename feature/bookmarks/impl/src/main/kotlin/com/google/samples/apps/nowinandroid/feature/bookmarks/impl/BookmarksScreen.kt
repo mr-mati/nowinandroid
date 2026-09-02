@@ -79,6 +79,7 @@ import com.google.samples.apps.nowinandroid.feature.bookmarks.api.R
 @Composable
 internal fun BookmarksScreen(
     onTopicClick: (String) -> Unit,
+    onNewsClick: (String) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     modifier: Modifier = Modifier,
     viewModel: BookmarksViewModel = hiltViewModel(),
@@ -91,6 +92,7 @@ internal fun BookmarksScreen(
         onNewsResourceViewed = { viewModel.setNewsResourceViewed(it, true) },
         onExternalNewsResourcesCheckedChanged = { id, _ -> viewModel.removeExternalFromSavedResources(id) },
         onTopicClick = onTopicClick,
+        onNewsClick = onNewsClick,
         modifier = modifier,
         shouldDisplayUndoBookmark = viewModel.shouldDisplayUndoBookmark,
         undoBookmarkRemoval = viewModel::undoBookmarkRemoval,
@@ -110,6 +112,7 @@ internal fun BookmarksScreen(
     onExternalNewsResourcesCheckedChanged: (String, Boolean) -> Unit,
     onNewsResourceViewed: (String) -> Unit,
     onTopicClick: (String) -> Unit,
+    onNewsClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     shouldDisplayUndoBookmark: Boolean = false,
     undoBookmarkRemoval: () -> Unit = {},
@@ -137,12 +140,13 @@ internal fun BookmarksScreen(
         Loading -> LoadingState(modifier)
         is Success -> if (feedState.feed.isNotEmpty() || feedState.externalFeed.isNotEmpty()) {
             BookmarksGrid(
-                feedState,
-                removeFromBookmarks,
-                onExternalNewsResourcesCheckedChanged,
-                onNewsResourceViewed,
-                onTopicClick,
-                modifier,
+                feedState = feedState,
+                removeFromBookmarks = removeFromBookmarks,
+                onExternalNewsResourcesCheckedChanged = onExternalNewsResourcesCheckedChanged,
+                onNewsResourceViewed = onNewsResourceViewed,
+                onTopicClick = onTopicClick,
+                onNewsClick = onNewsClick,
+                modifier = modifier,
             )
         } else {
             EmptyState(modifier)
@@ -170,6 +174,7 @@ private fun BookmarksGrid(
     onExternalNewsResourcesCheckedChanged: (String, Boolean) -> Unit,
     onNewsResourceViewed: (String) -> Unit,
     onTopicClick: (String) -> Unit,
+    onNewsClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollableState = rememberLazyStaggeredGridState()
@@ -194,6 +199,7 @@ private fun BookmarksGrid(
                 onExternalNewsResourcesCheckedChanged = onExternalNewsResourcesCheckedChanged,
                 onNewsResourceViewed = onNewsResourceViewed,
                 onTopicClick = onTopicClick,
+                onNewsClick = onNewsClick,
             )
             item(span = StaggeredGridItemSpan.FullLine) {
                 Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
@@ -281,6 +287,7 @@ private fun BookmarksGridPreview(
             onExternalNewsResourcesCheckedChanged = { _, _ -> },
             onNewsResourceViewed = {},
             onTopicClick = {},
+            onNewsClick = {},
         )
     }
 }

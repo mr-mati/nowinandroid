@@ -125,7 +125,9 @@ fun NewsResourceCardExpanded(
         Column {
             if (!userNewsResource.headerImageUrl.isNullOrEmpty()) {
                 Row {
-                    NewsResourceHeaderImage(userNewsResource.headerImageUrl)
+                    NewsResourceHeaderImage(
+                        headerImageUrl = userNewsResource.headerImageUrl,
+                    )
                 }
             }
             Box(
@@ -135,7 +137,7 @@ fun NewsResourceCardExpanded(
                     Spacer(modifier = Modifier.height(12.dp))
                     Row {
                         NewsResourceTitle(
-                            userNewsResource.title,
+                            newsResourceTitle = userNewsResource.title,
                             modifier = Modifier
                                 .fillMaxWidth((.8f))
                                 .dragAndDropSource { _ ->
@@ -178,6 +180,7 @@ fun NewsResourceCardExpanded(
 @Composable
 fun NewsResourceHeaderImage(
     headerImageUrl: String?,
+    modifier: Modifier = Modifier,
 ) {
     var isLoading by remember { mutableStateOf(true) }
     var isError by remember { mutableStateOf(false) }
@@ -190,7 +193,7 @@ fun NewsResourceHeaderImage(
     )
     val isLocalInspection = LocalInspectionMode.current
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(180.dp),
         contentAlignment = Alignment.Center,

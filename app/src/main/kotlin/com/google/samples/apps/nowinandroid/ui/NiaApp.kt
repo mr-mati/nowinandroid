@@ -159,6 +159,9 @@ internal fun NiaApp(
 
     val navigator = remember { Navigator(appState.navigationState) }
 
+    val currentDestination = appState.navigationState.currentKey
+    val shouldShowNavigation = currentDestination in appState.navigationState.topLevelKeys
+
     NiaNavigationSuiteScaffold(
         navigationSuiteItems = {
             TOP_LEVEL_NAV_ITEMS.forEach { (navKey, navItem) ->
@@ -187,6 +190,7 @@ internal fun NiaApp(
             }
         },
         windowAdaptiveInfo = windowAdaptiveInfo,
+        showNavigation = shouldShowNavigation,
         modifier = Modifier
             .fillMaxSize(),
     ) {
@@ -221,7 +225,7 @@ internal fun NiaApp(
                 // Only show the top app bar on top level destinations.
                 var shouldShowTopAppBar = false
 
-                if (appState.navigationState.currentKey in appState.navigationState.topLevelKeys) {
+                if (shouldShowNavigation) {
                     shouldShowTopAppBar = true
 
                     val destination =

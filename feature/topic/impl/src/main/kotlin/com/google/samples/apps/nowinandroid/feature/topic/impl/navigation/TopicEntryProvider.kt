@@ -28,6 +28,8 @@ import com.google.samples.apps.nowinandroid.feature.topic.impl.TopicScreen
 import com.google.samples.apps.nowinandroid.feature.topic.impl.TopicViewModel
 import com.google.samples.apps.nowinandroid.feature.topic.impl.TopicViewModel.Factory
 
+import com.google.samples.apps.nowinandroid.feature.news.api.navigation.navigateToNewsDetail
+
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 fun EntryProviderScope<NavKey>.topicEntry(navigator: Navigator) {
     entry<TopicNavKey>(
@@ -38,6 +40,7 @@ fun EntryProviderScope<NavKey>.topicEntry(navigator: Navigator) {
             showBackButton = true,
             onBackClick = { navigator.goBack() },
             onTopicClick = navigator::navigateToTopic,
+            onNewsClick = navigator::navigateToNewsDetail,
             viewModel = hiltViewModel<TopicViewModel, Factory>(
                 key = id,
             ) { factory ->

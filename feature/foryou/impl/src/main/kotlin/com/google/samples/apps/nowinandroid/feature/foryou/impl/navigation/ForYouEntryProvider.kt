@@ -27,6 +27,7 @@ fun EntryProviderScope<NavKey>.forYouEntry(navigator: Navigator) {
     entry<ForYouNavKey> {
         ForYouScreen(
             onTopicClick = navigator::navigateToTopic,
+            navigator = navigator,
         )
     }
 }

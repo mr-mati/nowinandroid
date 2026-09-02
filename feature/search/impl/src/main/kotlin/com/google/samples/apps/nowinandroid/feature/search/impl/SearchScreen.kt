@@ -107,6 +107,7 @@ internal fun SearchScreen(
     onBackClick: () -> Unit,
     onInterestsClick: () -> Unit,
     onTopicClick: (String) -> Unit,
+    onNewsClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     searchViewModel: SearchViewModel = hiltViewModel(),
 ) {
@@ -128,6 +129,7 @@ internal fun SearchScreen(
         onBackClick = onBackClick,
         onInterestsClick = onInterestsClick,
         onTopicClick = onTopicClick,
+        onNewsClick = onNewsClick,
     )
 }
 
@@ -147,6 +149,7 @@ internal fun SearchScreen(
     onBackClick: () -> Unit = {},
     onInterestsClick: () -> Unit = {},
     onTopicClick: (String) -> Unit = {},
+    onNewsClick: (String) -> Unit = {},
 ) {
     TrackScreenViewEvent(screenName = "Search")
     val density = LocalDensity.current
@@ -219,6 +222,7 @@ internal fun SearchScreen(
                             onExternalNewsResourcesCheckedChanged = onExternalNewsResourcesCheckedChanged,
                             onNewsResourceViewed = onNewsResourceViewed,
                             onFollowButtonClick = onFollowButtonClick,
+                            onNewsClick = onNewsClick,
                         )
                     }
                 }
@@ -324,6 +328,7 @@ private fun SearchResultBody(
     onExternalNewsResourcesCheckedChanged: (String, Boolean) -> Unit,
     onNewsResourceViewed: (String) -> Unit,
     onFollowButtonClick: (String, Boolean) -> Unit,
+    onNewsClick: (String) -> Unit,
 ) {
     val state = rememberLazyStaggeredGridState()
     Box(
@@ -395,9 +400,7 @@ private fun SearchResultBody(
                     onNewsResourcesCheckedChanged = onNewsResourcesCheckedChanged,
                     onNewsResourceViewed = onNewsResourceViewed,
                     onTopicClick = onTopicClick,
-                    onExpandedCardClick = {
-                        onSearchTriggered(searchQuery)
-                    },
+                    onNewsClick = onNewsClick,
                 )
             }
 
@@ -419,7 +422,7 @@ private fun SearchResultBody(
                     ExternalNewsResourceCard(
                         userExternalNewsResource = item,
                         onToggleBookmark = { onExternalNewsResourcesCheckedChanged(item.link, item.isBookmarked) },
-                        onClick = { onSearchTriggered(searchQuery) },
+                        onClick = { onNewsClick(item.link) },
                     )
                 }
             }

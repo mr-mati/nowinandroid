@@ -104,10 +104,12 @@ import com.google.samples.apps.nowinandroid.core.ui.UserNewsResourcePreviewParam
 import com.google.samples.apps.nowinandroid.core.ui.launchCustomChromeTab
 import com.google.samples.apps.nowinandroid.core.ui.newsFeed
 import com.google.samples.apps.nowinandroid.feature.foryou.api.R
+import com.google.samples.apps.nowinandroid.feature.news.api.navigation.navigateToNewsDetail
 
 @Composable
 fun ForYouScreen(
     onTopicClick: (String) -> Unit,
+    navigator: com.google.samples.apps.nowinandroid.core.navigation.Navigator,
     modifier: Modifier = Modifier,
     viewModel: ForYouViewModel = hiltViewModel(),
 ) {
@@ -127,6 +129,9 @@ fun ForYouScreen(
         saveFollowedTopics = viewModel::dismissOnboarding,
         onNewsResourcesCheckedChanged = viewModel::updateNewsResourceSaved,
         onNewsResourceViewed = { viewModel.setNewsResourceViewed(it, true) },
+        onNewsClick = { newsId ->
+            navigator.navigateToNewsDetail(newsId)
+        },
         modifier = modifier,
     )
 }
@@ -143,6 +148,7 @@ internal fun ForYouScreen(
     saveFollowedTopics: () -> Unit,
     onNewsResourcesCheckedChanged: (String, Boolean) -> Unit,
     onNewsResourceViewed: (String) -> Unit,
+    onNewsClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val isOnboardingLoading = onboardingUiState is OnboardingUiState.Loading
@@ -195,6 +201,7 @@ internal fun ForYouScreen(
                 onNewsResourcesCheckedChanged = onNewsResourcesCheckedChanged,
                 onNewsResourceViewed = onNewsResourceViewed,
                 onTopicClick = onTopicClick,
+                onNewsClick = onNewsClick,
             )
 
             item(span = StaggeredGridItemSpan.FullLine, contentType = "bottomSpacing") {
@@ -520,6 +527,7 @@ fun ForYouScreenPopulatedFeed(
             onNewsResourcesCheckedChanged = { _, _ -> },
             onNewsResourceViewed = {},
             onTopicClick = {},
+            onNewsClick = {},
             onDeepLinkOpened = {},
         )
     }
@@ -544,6 +552,7 @@ fun ForYouScreenOfflinePopulatedFeed(
             onNewsResourcesCheckedChanged = { _, _ -> },
             onNewsResourceViewed = {},
             onTopicClick = {},
+            onNewsClick = {},
             onDeepLinkOpened = {},
         )
     }
@@ -571,6 +580,7 @@ fun ForYouScreenTopicSelection(
             onNewsResourcesCheckedChanged = { _, _ -> },
             onNewsResourceViewed = {},
             onTopicClick = {},
+            onNewsClick = {},
             onDeepLinkOpened = {},
         )
     }
@@ -590,6 +600,7 @@ fun ForYouScreenLoading() {
             onNewsResourcesCheckedChanged = { _, _ -> },
             onNewsResourceViewed = {},
             onTopicClick = {},
+            onNewsClick = {},
             onDeepLinkOpened = {},
         )
     }
@@ -614,6 +625,7 @@ fun ForYouScreenPopulatedAndLoading(
             onNewsResourcesCheckedChanged = { _, _ -> },
             onNewsResourceViewed = {},
             onTopicClick = {},
+            onNewsClick = {},
             onDeepLinkOpened = {},
         )
     }

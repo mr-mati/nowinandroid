@@ -24,12 +24,15 @@ import com.google.samples.apps.nowinandroid.feature.search.api.navigation.Search
 import com.google.samples.apps.nowinandroid.feature.search.impl.SearchScreen
 import com.google.samples.apps.nowinandroid.feature.topic.api.navigation.navigateToTopic
 
+import com.google.samples.apps.nowinandroid.feature.news.api.navigation.navigateToNewsDetail
+
 fun EntryProviderScope<NavKey>.searchEntry(navigator: Navigator) {
     entry<SearchNavKey> {
         SearchScreen(
             onBackClick = { navigator.goBack() },
             onInterestsClick = { navigator.navigate(InterestsNavKey()) },
             onTopicClick = navigator::navigateToTopic,
+            onNewsClick = navigator::navigateToNewsDetail,
         )
     }
 }

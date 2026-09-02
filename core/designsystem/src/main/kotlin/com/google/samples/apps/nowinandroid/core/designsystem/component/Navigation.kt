@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.only
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.Icon
@@ -49,6 +49,7 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScope
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -200,10 +201,15 @@ fun NiaNavigationSuiteScaffold(
     navigationSuiteItems: NiaNavigationSuiteScope.() -> Unit,
     modifier: Modifier = Modifier,
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
+    showNavigation: Boolean = true,
     content: @Composable () -> Unit,
 ) {
-    val layoutType = NavigationSuiteScaffoldDefaults
-        .calculateFromAdaptiveInfo(windowAdaptiveInfo)
+    val layoutType = if (showNavigation) {
+        NavigationSuiteScaffoldDefaults
+            .calculateFromAdaptiveInfo(windowAdaptiveInfo)
+    } else {
+        NavigationSuiteType.None
+    }
     val navigationSuiteItemColors = NavigationSuiteItemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
             selectedIconColor = NiaNavigationDefaults.navigationSelectedItemColor(),
@@ -232,49 +238,53 @@ fun NiaNavigationSuiteScaffold(
         color = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onBackground,
     ) {
-        NavigationSuiteScaffoldLayout(
-            navigationSuite = {
-                Box(
-                    Modifier
-                        .consumeWindowInsets(WindowInsets.ime)
-                        .consumeWindowInsets(
-                            NavigationBarDefaults.windowInsets.only(WindowInsetsSides.Bottom),
-                        ),
-                ) {
-                    NavigationSuite(
-                        layoutType = layoutType,
-                        colors = NavigationSuiteDefaults.colors(
-                            navigationBarContentColor = NiaNavigationDefaults.navigationContentColor(),
-                            navigationRailContainerColor = Color.Transparent,
-                        ),
-                        content = {
-                            NiaNavigationSuiteScope(
-                                navigationSuiteScope = this,
-                                navigationSuiteItemColors = navigationSuiteItemColors,
-                            ).run(navigationSuiteItems)
-                        },
+        Box(Modifier.fillMaxSize()) {
+            // Content is always full screen to avoid layout jumps during transitions
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .consumeWindowInsets(
+                        if (showNavigation) {
+                            when (layoutType) {
+                                NavigationSuiteType.NavigationBar ->
+                                    NavigationBarDefaults.windowInsets.only(WindowInsetsSides.Bottom)
+                                NavigationSuiteType.NavigationRail ->
+                                    NavigationRailDefaults.windowInsets.only(WindowInsetsSides.Start)
+                                NavigationSuiteType.NavigationDrawer ->
+                                    DrawerDefaults.windowInsets.only(WindowInsetsSides.Start)
+                                else -> WindowInsets(0, 0, 0, 0)
+                            }
+                        } else {
+                            WindowInsets(0, 0, 0, 0)
+                        }
                     )
-                }
-            },
-            layoutType = layoutType,
-            content = {
-                Box(
-                    Modifier.consumeWindowInsets(
-                        when (layoutType) {
-                            NavigationSuiteType.NavigationBar ->
-                                NavigationBarDefaults.windowInsets.only(WindowInsetsSides.Bottom)
-                            NavigationSuiteType.NavigationRail ->
-                                NavigationRailDefaults.windowInsets.only(WindowInsetsSides.Start)
-                            NavigationSuiteType.NavigationDrawer ->
-                                DrawerDefaults.windowInsets.only(WindowInsetsSides.Start)
-                            else -> WindowInsets(0, 0, 0, 0)
-                        },
+            ) {
+                content()
+            }
+
+            // Navigation suite as an overlay
+            if (showNavigation && layoutType != NavigationSuiteType.None) {
+                NavigationSuite(
+                    layoutType = layoutType,
+                    colors = NavigationSuiteDefaults.colors(
+                        navigationBarContentColor = NiaNavigationDefaults.navigationContentColor(),
+                        navigationRailContainerColor = Color.Transparent,
                     ),
-                ) {
-                    content()
-                }
-            },
-        )
+                    modifier = Modifier.align(
+                        when (layoutType) {
+                            NavigationSuiteType.NavigationBar -> Alignment.BottomCenter
+                            else -> Alignment.TopStart
+                        }
+                    ),
+                    content = {
+                        NiaNavigationSuiteScope(
+                            navigationSuiteScope = this,
+                            navigationSuiteItemColors = navigationSuiteItemColors,
+                        ).run(navigationSuiteItems)
+                    },
+                )
+            }
+        }
     }
 }
 
