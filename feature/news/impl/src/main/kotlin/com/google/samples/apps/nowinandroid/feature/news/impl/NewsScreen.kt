@@ -138,7 +138,11 @@ internal fun NewsScreen(
                                 )
                             }
                             item(span = StaggeredGridItemSpan.FullLine) {
-                                Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
+                                Column {
+                                    // Add space for the bottom navigation bar
+                                    Spacer(Modifier.height(80.dp))
+                                    Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
+                                }
                             }
                         }
                         val itemsAvailable = uiState.news.size

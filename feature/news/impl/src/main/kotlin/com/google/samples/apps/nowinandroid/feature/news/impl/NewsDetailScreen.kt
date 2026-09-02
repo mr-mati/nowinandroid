@@ -88,11 +88,12 @@ internal fun NewsDetailScreenContent(
     onNewsResourceViewed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-    ) {
+    com.google.samples.apps.nowinandroid.core.designsystem.component.NiaBackground {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+        ) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
 
         Row(
@@ -193,4 +194,5 @@ internal fun NewsDetailScreenContent(
 
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
     }
+}
 }

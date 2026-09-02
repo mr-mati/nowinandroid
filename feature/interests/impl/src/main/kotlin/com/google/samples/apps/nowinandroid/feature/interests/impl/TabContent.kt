@@ -18,11 +18,13 @@ package com.google.samples.apps.nowinandroid.feature.interests.impl
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.systemBars
@@ -82,7 +84,11 @@ fun TopicsTabContent(
 
             if (withBottomSpacer) {
                 item {
-                    Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
+                    Column {
+                        // Add space for the bottom navigation bar
+                        Spacer(Modifier.height(80.dp))
+                        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
+                    }
                 }
             }
         }

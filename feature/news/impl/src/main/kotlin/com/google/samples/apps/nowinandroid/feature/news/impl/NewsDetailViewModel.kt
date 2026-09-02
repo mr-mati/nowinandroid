@@ -44,7 +44,8 @@ class NewsDetailViewModel @AssistedInject constructor(
                 publishDate = news.publishDate,
                 type = news.type,
                 followableTopics = news.followableTopics,
-                isSaved = news.isSaved
+                isSaved = news.isSaved,
+                isExternal = false
             )
         } else {
             val external = externalNews.find { it.link == newsId }
@@ -58,7 +59,8 @@ class NewsDetailViewModel @AssistedInject constructor(
                     publishDate = Clock.System.now(),
                     type = "Video",
                     followableTopics = emptyList(),
-                    isSaved = external.isBookmarked
+                    isSaved = external.isBookmarked,
+                    isExternal = true
                 )
             } else {
                 NewsDetailUiState.Error
@@ -73,7 +75,14 @@ class NewsDetailViewModel @AssistedInject constructor(
 
     fun toggleBookmark(isBookmarked: Boolean) {
         viewModelScope.launch {
-            userDataRepository.setNewsResourceBookmarked(newsId, !isBookmarked)
+            val state = uiState.value
+            if (state is NewsDetailUiState.Success) {
+                if (state.isExternal) {
+                    userDataRepository.setExternalNewsResourceBookmarked(newsId, !isBookmarked)
+                } else {
+                    userDataRepository.setNewsResourceBookmarked(newsId, !isBookmarked)
+                }
+            }
         }
     }
 
@@ -102,6 +111,7 @@ sealed interface NewsDetailUiState {
         val type: String,
         val followableTopics: List<FollowableTopic>,
         val isSaved: Boolean,
+        val isExternal: Boolean,
     ) : NewsDetailUiState
     data object Error : NewsDetailUiState
     data object Loading : NewsDetailUiState

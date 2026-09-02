@@ -256,9 +256,6 @@ internal fun NiaApp(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .windowInsetsPadding(
-                            WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom),
-                        )
                         .consumeWindowInsets(
                             if (shouldShowTopAppBar) {
                                 WindowInsets.safeDrawing.only(WindowInsetsSides.Top)

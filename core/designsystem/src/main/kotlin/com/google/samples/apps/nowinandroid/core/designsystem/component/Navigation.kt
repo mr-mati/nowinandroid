@@ -239,30 +239,7 @@ fun NiaNavigationSuiteScaffold(
         contentColor = MaterialTheme.colorScheme.onBackground,
     ) {
         Box(Modifier.fillMaxSize()) {
-            // Content is always full screen to avoid layout jumps during transitions
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .consumeWindowInsets(
-                        if (showNavigation) {
-                            when (layoutType) {
-                                NavigationSuiteType.NavigationBar ->
-                                    NavigationBarDefaults.windowInsets.only(WindowInsetsSides.Bottom)
-                                NavigationSuiteType.NavigationRail ->
-                                    NavigationRailDefaults.windowInsets.only(WindowInsetsSides.Start)
-                                NavigationSuiteType.NavigationDrawer ->
-                                    DrawerDefaults.windowInsets.only(WindowInsetsSides.Start)
-                                else -> WindowInsets(0, 0, 0, 0)
-                            }
-                        } else {
-                            WindowInsets(0, 0, 0, 0)
-                        }
-                    )
-            ) {
-                content()
-            }
-
-            // Navigation suite as an overlay
+            // Navigation suite behind the content
             if (showNavigation && layoutType != NavigationSuiteType.None) {
                 NavigationSuite(
                     layoutType = layoutType,
@@ -283,6 +260,11 @@ fun NiaNavigationSuiteScaffold(
                         ).run(navigationSuiteItems)
                     },
                 )
+            }
+
+            // Content is always full screen
+            Box(Modifier.fillMaxSize()) {
+                content()
             }
         }
     }

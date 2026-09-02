@@ -207,9 +207,8 @@ internal fun ForYouScreen(
             item(span = StaggeredGridItemSpan.FullLine, contentType = "bottomSpacing") {
                 Column {
                     Spacer(modifier = Modifier.height(8.dp))
-                    // Add space for the content to clear the "offline" snackbar.
-                    // TODO: Check that the Scaffold handles this correctly in NiaApp
-                    // if (isOffline) Spacer(modifier = Modifier.height(48.dp))
+                    // Add space for the bottom navigation bar
+                    Spacer(Modifier.height(80.dp))
                     Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
                 }
             }
