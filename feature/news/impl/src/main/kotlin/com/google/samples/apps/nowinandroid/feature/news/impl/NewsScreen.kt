@@ -137,13 +137,6 @@ internal fun NewsScreen(
                                     onClick = { onNewsClick(item.link) },
                                 )
                             }
-                            item(span = StaggeredGridItemSpan.FullLine) {
-                                Column {
-                                    // Add space for the bottom navigation bar
-                                    Spacer(Modifier.height(80.dp))
-                                    Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
-                                }
-                            }
                         }
                         val itemsAvailable = uiState.news.size
                         val scrollbarState = scrollableState.scrollbarState(

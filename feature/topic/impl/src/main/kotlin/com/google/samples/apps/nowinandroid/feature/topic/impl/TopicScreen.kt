@@ -154,9 +154,6 @@ internal fun TopicScreen(
                     )
                 }
             }
-            item {
-                Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
-            }
         }
         val itemsAvailable = topicItemsSize(topicUiState, newsUiState)
         val scrollbarState = state.scrollbarState(

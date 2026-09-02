@@ -201,13 +201,6 @@ private fun BookmarksGrid(
                 onTopicClick = onTopicClick,
                 onNewsClick = onNewsClick,
             )
-            item(span = StaggeredGridItemSpan.FullLine) {
-                Column {
-                    // Add space for the bottom navigation bar
-                    Spacer(Modifier.height(80.dp))
-                    Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
-                }
-            }
         }
         val itemsAvailable = when (feedState) {
             Loading -> 1

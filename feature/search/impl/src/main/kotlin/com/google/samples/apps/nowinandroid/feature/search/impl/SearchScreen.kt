@@ -222,7 +222,6 @@ internal fun SearchScreen(
                 }
             }
         }
-        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
     }
 }
 

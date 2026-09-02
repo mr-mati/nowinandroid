@@ -81,16 +81,6 @@ fun TopicsTabContent(
                     )
                 }
             }
-
-            if (withBottomSpacer) {
-                item {
-                    Column {
-                        // Add space for the bottom navigation bar
-                        Spacer(Modifier.height(80.dp))
-                        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
-                    }
-                }
-            }
         }
         val scrollbarState = scrollableState.scrollbarState(
             itemsAvailable = topics.size,

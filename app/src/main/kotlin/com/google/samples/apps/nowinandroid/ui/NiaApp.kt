@@ -219,7 +219,7 @@ internal fun NiaApp(
                     .consumeWindowInsets(padding)
                     .windowInsetsPadding(
                         WindowInsets.safeDrawing.only(
-                            WindowInsetsSides.Horizontal,
+                            WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom,
                         ),
                     ),
             ) {

@@ -203,15 +203,6 @@ internal fun ForYouScreen(
                 onTopicClick = onTopicClick,
                 onNewsClick = onNewsClick,
             )
-
-            item(span = StaggeredGridItemSpan.FullLine, contentType = "bottomSpacing") {
-                Column {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    // Add space for the bottom navigation bar
-                    Spacer(Modifier.height(80.dp))
-                    Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
-                }
-            }
         }
         AnimatedVisibility(
             visible = isSyncing || isFeedLoading || isOnboardingLoading,

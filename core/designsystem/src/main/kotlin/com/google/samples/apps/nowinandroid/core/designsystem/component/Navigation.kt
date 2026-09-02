@@ -233,40 +233,23 @@ fun NiaNavigationSuiteScaffold(
         ),
     )
 
-    Surface(
-        modifier = modifier,
-        color = Color.Transparent,
+    NavigationSuiteScaffold(
+        navigationSuiteItems = {
+            NiaNavigationSuiteScope(
+                navigationSuiteScope = this,
+                navigationSuiteItemColors = navigationSuiteItemColors,
+            ).run(navigationSuiteItems)
+        },
+        layoutType = layoutType,
+        containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onBackground,
+        navigationSuiteColors = NavigationSuiteDefaults.colors(
+            navigationBarContentColor = NiaNavigationDefaults.navigationContentColor(),
+            navigationRailContainerColor = Color.Transparent,
+        ),
+        modifier = modifier,
     ) {
-        Box(Modifier.fillMaxSize()) {
-            // Navigation suite behind the content
-            if (showNavigation && layoutType != NavigationSuiteType.None) {
-                NavigationSuite(
-                    layoutType = layoutType,
-                    colors = NavigationSuiteDefaults.colors(
-                        navigationBarContentColor = NiaNavigationDefaults.navigationContentColor(),
-                        navigationRailContainerColor = Color.Transparent,
-                    ),
-                    modifier = Modifier.align(
-                        when (layoutType) {
-                            NavigationSuiteType.NavigationBar -> Alignment.BottomCenter
-                            else -> Alignment.TopStart
-                        }
-                    ),
-                    content = {
-                        NiaNavigationSuiteScope(
-                            navigationSuiteScope = this,
-                            navigationSuiteItemColors = navigationSuiteItemColors,
-                        ).run(navigationSuiteItems)
-                    },
-                )
-            }
-
-            // Content is always full screen
-            Box(Modifier.fillMaxSize()) {
-                content()
-            }
-        }
+        content()
     }
 }
 
